@@ -1,0 +1,18 @@
+{
+  "name": "movies-service",
+  "version": "1.0.0",
+  "description": "Provide movies info.",
+  "license": "ISC",
+  "author": "Angelo Marcio",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv-safe": "^9.1.0",
+    "express": "^5.1.0",
+    "mongodb": "^6.16.0"
+  }
+}
