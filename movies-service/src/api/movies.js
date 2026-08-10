@@ -11,8 +11,6 @@ module.exports = (app, repository) => {
         return res.sendStatus(404);
     }
 
-    console.log('--- LOG API ---');
-    console.log('O que vou enviar no res.json:', movies);
     res.json(movies);
 });
 

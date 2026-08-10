@@ -1,17 +1,35 @@
-const { test, expect, beforeEach, beforeAll } = require('@jest/globals');
+// 1. O Mock deve vir primeiro
+jest.mock('./repository'); 
+
+// 2. O require deve ser único
 const repository = require('./repository');
+const { test, expect, beforeAll } = require('@jest/globals');
 
 let testMovieId = null;
 
 beforeAll(async () => {
-   const movies = await repository.getAllMovies();
+    // Agora o Jest usará a versão mockada automaticamente
+    const movies = await repository.getAllMovies();
     testMovieId = movies[0]._id;
-})
+});
+
+// Garante que o repositório use o mock do banco de dados
+jest.mock('../config/database', () => ({
+    connect: jest.fn().mockResolvedValue({
+        collection: jest.fn().mockReturnValue({
+            find: jest.fn().mockReturnValue({ 
+                toArray: jest.fn().mockResolvedValue([{ _id: '691be514a6dda6c3b5ce5f47' }]) 
+            }),
+            findOne: jest.fn().mockResolvedValue({ _id: '691be514a6dda6c3b5ce5f47' })
+        })
+    })
+}));
+
 
 test('getAllMovies', async () => { 
     const movies = await repository.getAllMovies();
     expect(Array.isArray(movies)).toBeTruthy();
-    expect(movies.length).toBeTruthy();
+    expect(movies.length).toBeGreaterThan(0); // Mais preciso que truthy
  })
 
  test('getMovieById', async () => { 

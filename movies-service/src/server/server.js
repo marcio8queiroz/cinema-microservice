@@ -5,6 +5,10 @@ const helmet = require('helmet');
 let server = null;
 
 async function start(api, repository) {
+    if (server?.listening) {
+        throw new Error('Server is already running');
+    }
+
     const app = express();
 
     app.use(helmet());
@@ -29,7 +33,12 @@ async function start(api, repository) {
 }
 
 async function stop() {
-    if(server) await server.close();
+    if (!server) return true;
+
+    await new Promise((resolve, reject) => {
+        server.close((error) => error ? reject(error) : resolve());
+    });
+    server = null;
     return true;
 }
 

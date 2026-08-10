@@ -31,12 +31,7 @@ test('GET /movies/:id', async () => {
 
 test('GET /movies/premieres', async () => {
     const response = await request(app).get('/movies/premieres');
-    
-    // --- ADICIONE ESTES LOGS PARA ENTENDER O ERRO ---
-    console.log('Status Recebido:', response.status);
-    console.log('Corpo da Resposta:', response.body);
-    // ------------------------------------------------
-    
+
     expect(response.status).toEqual(200);
     expect(Array.isArray(response.body)).toBeTruthy();
     expect(response.body.length).toBeTruthy();
