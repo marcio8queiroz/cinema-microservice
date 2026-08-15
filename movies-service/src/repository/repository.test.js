@@ -1,50 +1,57 @@
-// 1. O Mock deve vir primeiro
-jest.mock('./repository'); 
-
-// 2. O require deve ser único
-const repository = require('./repository');
-const { test, expect, beforeAll } = require('@jest/globals');
-
-let testMovieId = null;
-
-beforeAll(async () => {
-    // Agora o Jest usará a versão mockada automaticamente
-    const movies = await repository.getAllMovies();
-    testMovieId = movies[0]._id;
-});
-
-// Garante que o repositório use o mock do banco de dados
 jest.mock('../config/database', () => ({
-    connect: jest.fn().mockResolvedValue({
-        collection: jest.fn().mockReturnValue({
-            find: jest.fn().mockReturnValue({ 
-                toArray: jest.fn().mockResolvedValue([{ _id: '691be514a6dda6c3b5ce5f47' }]) 
-            }),
-            findOne: jest.fn().mockResolvedValue({ _id: '691be514a6dda6c3b5ce5f47' })
-        })
-    })
+  connect: jest.fn()
 }));
 
+const database = require('../config/database');
+const repository = require('./repository');
 
-test('getAllMovies', async () => { 
-    const movies = await repository.getAllMovies();
-    expect(Array.isArray(movies)).toBeTruthy();
-    expect(movies.length).toBeGreaterThan(0); // Mais preciso que truthy
- })
+describe('repository', () => {
+  test('getAllMovies retorna todos os filmes', async () => {
+    const toArray = jest.fn().mockResolvedValue([{ _id: '1' }]);
+    const collection = jest.fn().mockReturnValue({
+      find: jest.fn().mockReturnValue({ toArray })
+    });
 
- test('getMovieById', async () => { 
-    const movie  = await repository.getMovieById(testMovieId);
-    expect(movie).toBeTruthy();
-    expect(movie._id).toEqual(testMovieId)
- })
+    database.connect.mockResolvedValue({ collection });
 
- test('getMoviePremieres', async () => { 
-   const monthAgo = new Date();
-   monthAgo.setMonth(monthAgo.getMonth() - 1);
+    await expect(repository.getAllMovies()).resolves.toEqual([
+      { _id: '1' }
+    ]);
 
-    const movies = await repository.getMoviePremieres()
-    expect(Array.isArray(movies)).toBeTruthy();
-    expect(movies.length).toBeTruthy();
-    // CÓDIGO CORRIGIDO (comparando timestamps numéricos)
-expect(movies[0].dataLancamento.getTime()).toBeGreaterThanOrEqual(monthAgo.getTime());
- })
+    expect(collection).toHaveBeenCalledWith('movies');
+  });
+
+  test('getMovieById procura pelo ObjectId', async () => {
+    const movie = { _id: '691be514a6dda6c3b5ce5f47' };
+    const findOne = jest.fn().mockResolvedValue(movie);
+
+    database.connect.mockResolvedValue({
+      collection: jest.fn().mockReturnValue({ findOne })
+    });
+
+    await expect(
+      repository.getMovieById('691be514a6dda6c3b5ce5f47')
+    ).resolves.toEqual(movie);
+
+    expect(findOne).toHaveBeenCalledWith({
+      _id: expect.any(Object)
+    });
+  });
+
+  test('getMoviePremieres filtra pelo último mês', async () => {
+    const toArray = jest.fn().mockResolvedValue([]);
+    const find = jest.fn().mockReturnValue({ toArray });
+
+    database.connect.mockResolvedValue({
+      collection: jest.fn().mockReturnValue({ find })
+    });
+
+    await repository.getMoviePremieres();
+
+    expect(find).toHaveBeenCalledWith({
+      dataLancamento: {
+        $gte: expect.any(Date)
+      }
+    });
+  });
+});

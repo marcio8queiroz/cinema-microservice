@@ -4,10 +4,14 @@ module.exports = (app, repository) => {
     const result = await repository.getMoviePremieres();
     
     // Garante que o que enviamos é um array, mesmo que contenha apenas um item
-    const movies = Array.isArray(result) ? result : [result];
+    const movies = result == null
+  ? []
+  : Array.isArray(result)
+    ? result
+    : [result];
 
     // Retorna 404 se não houver movies OU se o array estiver vazio (!movies.length)
-    if (!movies || movies.length === 0) {
+    if (movies.length === 0) {
         return res.sendStatus(404);
     }
 

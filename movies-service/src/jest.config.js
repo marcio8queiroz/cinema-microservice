@@ -65,7 +65,23 @@ const config = {
   testPathIgnorePatterns: [
     "/node_modules/"
   ],
+  
+collectCoverageFrom: [
+  "api/**/*.js",
+  "config/**/*.js",
+  "repository/**/*.js",
+  "server/**/*.js",
+  "!repository/__mocks__/**"
+],
 
+coverageThreshold: {
+  global: {
+    branches: 100,
+    functions: 100,
+    lines: 100,
+    statements: 100
+  }
+},
  
 };
 
