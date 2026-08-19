@@ -1,11 +1,9 @@
-version: '3.8'
-
 services:
-  mongodb:
+  movies-db:
     image: mongo:7.0
-    container_name: mongodb
+    container_name: movies-db
     ports:
-      - "27017:27017"
+      - "27018:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password
@@ -13,5 +11,18 @@ services:
       - mongodata:/data/db
     restart: unless-stopped
 
+  catalog-db:
+    image: mongo:7.0
+    container_name: catalog-db
+    ports:
+      - "27019:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - catalog-data:/data/db
+    restart: unless-stopped
+
 volumes:
   mongodata:
+  catalog-data:
