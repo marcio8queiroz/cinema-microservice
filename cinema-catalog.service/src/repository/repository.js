@@ -1,22 +1,11 @@
 const database = require('../config/database');
 const {ObjectId} = require('mongodb');
 
-async function getAllMovies() {
+async function getAllCities() {
     const db = await database.connect();
-    return db.collection('movies').find().toArray();
+    return db.collection('cinemaCatalog').find({}, { cidade: 1, uf: 1, pais: 1 }).toArray();
 }
 
-async function getMovieById(id) {
-    const db = await database.connect();
-    return db.collection('movies').findOne({ _id: new ObjectId(id) });
-}
 
-async function getMoviePremieres() {
-    const monthAgo = new Date();
-  monthAgo.setMonth(monthAgo.getMonth() - 1);
 
-    const db = await database.connect();
-    return db.collection('movies').find({ dataLancamento: { $gte: monthAgo} }).toArray();
-}
-
-module.exports = { getAllMovies, getMovieById, getMoviePremieres }
+module.exports = { getAllCities }
