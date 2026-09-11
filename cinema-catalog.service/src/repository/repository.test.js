@@ -5,6 +5,13 @@ require('dotenv').config({
 const database = require('../config/database');
 const repository = require('./repository');
 
+let cityId = null;
+
+beforeAll(async () => {
+  const cities = await repository.getAllCities();
+  cityId = cities[0]._id;
+})
+
 afterAll(async () => {
   await database.disconnect();
 });
@@ -14,3 +21,11 @@ test('getAllCities', async () => {
   expect(Array.isArray(cities)).toBe(true);
   expect(cities.length).toBeGreaterThan(0);
 });
+
+test('getCinemasByCityId', async () => {
+  const city = await repository.getCinemasByCityId(cityId);
+  console.log(city);
+  expect(city).toBeTruthy();
+  expect(Array.isArray(city.cinemas)).toBeTruthy()
+});
+

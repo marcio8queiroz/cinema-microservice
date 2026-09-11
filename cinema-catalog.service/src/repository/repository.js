@@ -6,6 +6,11 @@ async function getAllCities() {
     return db.collection('cinemaCatalog').find({}, { cidade: 1, uf: 1, pais: 1 }).toArray();
 }
 
+async function getCinemasByCityId(cityId) {
+    const objCityId = new ObjectId(cityId);
+    const db = await database.connect();
+    return db.collection('cinemaCatalog')
+             .findOne({ _id: objCityId }, { projection: { cinemas: 1 } });
+}
 
-
-module.exports = { getAllCities }
+module.exports = { getAllCities, getCinemasByCityId };
