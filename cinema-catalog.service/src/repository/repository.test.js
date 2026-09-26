@@ -6,10 +6,18 @@ const database = require('../config/database');
 const repository = require('./repository');
 
 let cityId = null;
+let cinemaId = null;
+let movieId = null;
 
 beforeAll(async () => {
   const cities = await repository.getAllCities();
-  cityId = cities[0]._id;
+  cityId = cities[cities.length - 1]._id;
+
+  const cinemas = await repository.getCinemasByCityId(cityId);
+  cinemaId = cinemas[0]._id;
+
+  movieId = cinemas[0].salas[0].sessoes[0].idFilme;
+  console.log(movieId);
 })
 
 afterAll(async () => {
@@ -23,9 +31,30 @@ test('getAllCities', async () => {
 });
 
 test('getCinemasByCityId', async () => {
-  const city = await repository.getCinemasByCityId(cityId);
-  console.log(city);
-  expect(city).toBeTruthy();
-  expect(Array.isArray(city.cinemas)).toBeTruthy()
+  const cinemas = await repository.getCinemasByCityId(cityId);
+  expect(Array.isArray(cinemas)).toBeTruthy();
 });
 
+
+test('getMoviesByCinemaId', async () => {
+  const movies = await repository.getMoviesByCinemaId(cinemaId);
+  // console.log(movies);
+  expect(movies).toBeTruthy();
+  expect(Array.isArray(movies)).toBeTruthy()
+  expect(movies.length).toBeTruthy()
+});
+
+test('getMoviesByCityId', async () => {
+  const movies = await repository.getMoviesByCityId(cityId);
+  // console.log(movies);
+  expect(movies).toBeTruthy();
+  expect(Array.isArray(movies)).toBeTruthy()
+  expect(movies.length).toBeTruthy()
+});
+
+test('getMovieSessionsByCityId', async () => {
+  const movieSessions = await repository.getMovieSessionsByCityId(movieId, cityId);
+  expect(movieSessions).toBeTruthy();
+  expect(Array.isArray(movieSessions)).toBeTruthy()
+  expect(movieSessions.length).toBeTruthy()
+});
